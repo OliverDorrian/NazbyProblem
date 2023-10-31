@@ -1,1 +1,1 @@
-# Traveling Nazby Problem
+# TravelingNazbyProblem
