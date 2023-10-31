@@ -62,21 +62,18 @@ void farthestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
             }
         }
 
-        // Insert the farthestVertex at the appropriate position in the tour
+        // Shift elements to make space for the new vertex
         for (int i = step; i > positionToInsert; i--) {
             tour[i] = tour[i - 1];
         }
         tour[positionToInsert + 1] = farthestVertex;
         visited[farthestVertex] = true;
     }
-    // Connect the last vertex to the starting vertex to form a closed tour
-    tour[numCoordinates] = tour[0];
+
 }
 
-
-
 int main () {
-    char const *fileName = "9_coords.coord";
+    char const *fileName = "4096_coords.coord";
     int numCoordinates = readNumOfCoords(fileName);
     double** coords = readCoords(fileName,numCoordinates);
 
@@ -117,5 +114,4 @@ int main () {
     }
     free(coords);
     free(distanceMatrix);
-
 }
