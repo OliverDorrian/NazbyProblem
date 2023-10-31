@@ -27,7 +27,7 @@ void cheapestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
         unvisited[i] = i;
     }
 
-    int tourSize = 1;  // Tour size starts at 1 (the initial city)
+    int tourSize = 1;
     int startCity = 0;
     tour[0] = startCity;
     unvisited[startCity] = -1;  // Mark the starting city as visited
@@ -75,7 +75,7 @@ void cheapestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
 
 
 int main() {
-    char const *fileName = "16_coords.coord";
+    char const *fileName = "9_coords.coord";
     int numCoordinates = readNumOfCoords(fileName);
     double** coords = readCoords(fileName,numCoordinates);
 
@@ -87,11 +87,7 @@ int main() {
     // generate distance Matrix
     createDistanceMatrix(coords, numCoordinates, distanceMatrix);
 
-    int* visited = (int*)malloc(numCoordinates * sizeof(int));
     int tour[numCoordinates];
-
-
-    // insert additions here
     cheapestInsertion(distanceMatrix, numCoordinates, tour);
 
     double totalTourDistance = 0.0;
