@@ -35,7 +35,7 @@ double **readCoords(const char *filename, int numOfCoords){
     char line[100];
 
     if(file == nullptr) {
-        printf("Unable to open file: %s", filename);
+        printf("NullPtr: Unable to open file: %s", filename);
         return nullptr;
     }
 

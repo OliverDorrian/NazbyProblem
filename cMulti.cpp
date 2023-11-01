@@ -1,24 +1,41 @@
+#include <cstdio>
 #include <iostream>
-#include "coordReader.c"
 #include <limits>
+#include <cmath>
+#include <omp.h>
 #include <chrono>
 #include <iomanip>
+
+#include "coordReader.c"
 
 double calculateDistance(double x1, double y1, double x2, double y2) {
     // Calculate the Euclidean distance between two points.
     return sqrt(((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2)));
 }
 
-void createDistanceMatrix(double **passedCoords, int numCoordinates, double **distanceMatrix) {
+void checkTreads() {
+    #pragma omp parallel
+    {
+        int threadID = omp_get_thread_num();
+        #pragma omp critical
+        std::cout << "Hello from thread " << threadID << std::endl;
+    }
+}
 
+void createDistanceMatrix(double **passedCoords, int numCoordinates, double **distanceMatrix) {
+    #pragma omp parallel for collapse(2)
     for (int i = 0; i < numCoordinates; ++i) {
         for (int j = i + 1; j < numCoordinates; ++j) {
+
             double distance = calculateDistance(passedCoords[i][0], passedCoords[i][1], passedCoords[j][0],
-                                                passedCoords[j][1]);
+                passedCoords[j][1]);
+
             distanceMatrix[i][j] = distance;
             distanceMatrix[j][i] = distance;
         }
-        // Set diagonal elements to 0
+    }
+
+    for (int i = 0; i < numCoordinates; ++i) {
         distanceMatrix[i][i] = 0.000000;
     }
 }
@@ -27,7 +44,7 @@ void printDistanceMatrix(double **distanceMatrix, int numCoordinates) {
 
     for (int i = 0; i < numCoordinates; i++) {
         for (int j = 0; j < numCoordinates; j++) {
-            std::cout << std::fixed << std::setprecision(2) << std::setw(6) << distanceMatrix[i][j] << " ";
+            std::cout << distanceMatrix[i][j] << " ";
         }
         std::cout << "\n";
     }
@@ -84,19 +101,23 @@ void cheapestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
     }
 }
 
+
 int main() {
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    int numThreads = 12;
+    omp_set_num_threads(numThreads);
 
     char const *fileName = "4096_coords.coord";
     int numCoordinates = readNumOfCoords(fileName);
     double** coords = readCoords(fileName,numCoordinates);
+
 
     // Allocate memory for the distance matrix
     auto **distanceMatrix = (double **)malloc(numCoordinates * sizeof(double *));
     for (int i = 0; i < numCoordinates; i++) {
         distanceMatrix[i] = (double *)malloc(numCoordinates * sizeof(double ));
     }
-
-    auto start_time = std::chrono::high_resolution_clock::now();
 
     createDistanceMatrix(coords, numCoordinates, distanceMatrix);
 
@@ -114,7 +135,7 @@ int main() {
     for (int i = 0; i < numCoordinates; i++) {
         std::cout << tour[i];
         if (i < numCoordinates - 1) {
-            std::cout << " -> ";
+           std::cout << " -> ";
         }
     }
     std::cout << " -> " << 0 << std::endl; // Add the starting point at the end to close the loop
@@ -127,13 +148,12 @@ int main() {
         free(coords[i]);
         free(distanceMatrix[i]);
     }
+
     free(coords);
     free(distanceMatrix);
 
-
     auto end_time = std::chrono::high_resolution_clock::now();
     auto execution_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-    std::cout << "Execution time: " << execution_time.count() << " miroseconds" << std::endl;
-
+    std::cout << "Execution time: " << execution_time.count() << " microseconds" << std::endl;
     return 0;
 }
