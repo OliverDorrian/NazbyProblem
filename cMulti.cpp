@@ -55,9 +55,7 @@ void printDistanceMatrix(double **distanceMatrix, int numCoordinates) {
 
 void cheapestInsertion(double **distanceMatrix, int numCoordinates, int *tour) {
     int unvisited[numCoordinates];
-    for (int i = 0; i < numCoordinates; i++) {
-        unvisited[i] = i;
-    }
+    std::iota(unvisited, unvisited + numCoordinates, 0);
 
     int tourSize = 1;
     int startCity = 0;
