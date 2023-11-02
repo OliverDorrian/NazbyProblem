@@ -3,6 +3,7 @@
 #include <limits>
 #include <chrono>
 #include <iomanip>
+#include <numeric>
 
 double calculateDistance(double x1, double y1, double x2, double y2) {
     // Calculate the Euclidean distance between two points.
@@ -35,9 +36,7 @@ void printDistanceMatrix(double **distanceMatrix, int numCoordinates) {
 
 void cheapestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
     int unvisited[numCoordinates];
-    for (int i = 0; i < numCoordinates; i++) {
-        unvisited[i] = i;
-    }
+    std::iota(unvisited, unvisited + numCoordinates, 0);
 
     int tourSize = 1;
     int startCity = 0;
@@ -57,7 +56,7 @@ void cheapestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
 
                 for (int vn = 0; vn < tourSize; vn++) {
                     int vn_1 = tour[vn];
-                    int vn_2 = tour[(vn + 1) % tourSize];  // Circular tour
+                    int vn_2 = tour[(vn + 1) % tourSize];
 
                     double insertionCost = distanceMatrix[vn_1][vk] + distanceMatrix[vn_2][vk] - distanceMatrix[vn_1][vn_2];
 

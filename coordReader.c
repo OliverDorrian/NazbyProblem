@@ -2,12 +2,14 @@
 #include <cstdlib>
 #include <cmath>
 
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wwritable-strings"
 #pragma clang diagnostic pop
 
 int readNumOfCoords(const char *fileName);
 double **readCoords(const char *filename, int numOfCoords);
+
 
 /*Gets the number of the coordinates in the file. Returns as a single integer*/
 int readNumOfCoords(const char *filename){
