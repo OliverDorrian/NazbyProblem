@@ -3,7 +3,7 @@ project(openmp_test_clion)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # Set the default number of threads
-set(DEFAULT_NUM_THREADS 4)
+set(DEFAULT_NUM_THREADS 12)
 
 # Create a CMake variable to configure the number of threads
 set(NUM_THREADS ${DEFAULT_NUM_THREADS} CACHE STRING "Number of threads to use")

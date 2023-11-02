@@ -45,6 +45,7 @@ void cheapestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
     unvisited[startCity] = -1;  // Mark the starting city as visited
 
     for (int i = 1; i < numCoordinates; i++) {
+        std::cout << i << std::endl;
         int bestCity = -1;
         int bestInsertionIndex = -1;
         double minCost = std::numeric_limits<double>::max();
@@ -85,8 +86,9 @@ void cheapestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
 }
 
 int main() {
+    char const *fileName = "9_coords.coord";
+    //char const *fileName = "4096_coords.coord";
 
-    char const *fileName = "4096_coords.coord";
     int numCoordinates = readNumOfCoords(fileName);
     double** coords = readCoords(fileName,numCoordinates);
 
@@ -103,11 +105,15 @@ int main() {
     int tour[numCoordinates];
     cheapestInsertion(distanceMatrix, numCoordinates, tour);
 
-    double totalTourDistance = 0.0;
-    for (int i = 0; i < numCoordinates - 1; i++) {
-        totalTourDistance += distanceMatrix[tour[i]][tour[i + 1]];
-    }
-    std::cout << "Total Tour Distance: " << totalTourDistance << std::endl;
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto execution_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+    double seconds = static_cast<double>(execution_time.count()) / 1000000.0;
+    std::cout << "Execution time: " << seconds << " seconds" << std::endl;
+
+    end_time = std::chrono::high_resolution_clock::now();
+    execution_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+    std::cout << "Execution time: " << execution_time.count() << " miroseconds" << std::endl;
 
     // Print the tour
     std::cout << "Tour order: ";
@@ -131,9 +137,6 @@ int main() {
     free(distanceMatrix);
 
 
-    auto end_time = std::chrono::high_resolution_clock::now();
-    auto execution_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-    std::cout << "Execution time: " << execution_time.count() << " miroseconds" << std::endl;
 
     return 0;
 }
