@@ -1,9 +1,9 @@
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
 #include "coordReader.c"
-#include <limits>
-#include <chrono>
-#include <iomanip>
-#include <numeric>
 
 double calculateDistance(double x1, double y1, double x2, double y2) {
     // Calculate the Euclidean distance between two points.
@@ -24,19 +24,11 @@ void createDistanceMatrix(double **passedCoords, int numCoordinates, double **di
     }
 }
 
-void printDistanceMatrix(double **distanceMatrix, int numCoordinates) {
-
-    for (int i = 0; i < numCoordinates; i++) {
-        for (int j = 0; j < numCoordinates; j++) {
-            std::cout << std::fixed << std::setprecision(2) << std::setw(6) << distanceMatrix[i][j] << " ";
-        }
-        std::cout << "\n";
-    }
-}
-
 void cheapestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
     int unvisited[numCoordinates];
-    std::iota(unvisited, unvisited + numCoordinates, 0);
+    for (int i = 0; i < numCoordinates; i++) {
+        unvisited[i] = i;
+    }
 
     int tourSize = 1;
     int startCity = 0;
@@ -44,14 +36,13 @@ void cheapestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
     unvisited[startCity] = -1;  // Mark the starting city as visited
 
     for (int i = 1; i < numCoordinates; i++) {
-        std::cout << i << std::endl;
         int bestCity = -1;
         int bestInsertionIndex = -1;
-        double minCost = std::numeric_limits<double>::max();
+        double minCost = 1.79769e+308;
 
         for (int vk = 0; vk < numCoordinates; vk++) {
             if (unvisited[vk] != -1) {  // Check for unvisited cities
-                double minInsertionCost = std::numeric_limits<double>::max();
+                double minInsertionCost = 1.79769e+308;
                 int bestInsertionPos = -1;
 
                 for (int vn = 0; vn < tourSize; vn++) {
@@ -92,12 +83,12 @@ int main() {
     double** coords = readCoords(fileName,numCoordinates);
 
     // Allocate memory for the distance matrix
-    auto **distanceMatrix = (double **)malloc(numCoordinates * sizeof(double *));
+    double **distanceMatrix = (double **)malloc(numCoordinates * sizeof(double *));
     for (int i = 0; i < numCoordinates; i++) {
         distanceMatrix[i] = (double *)malloc(numCoordinates * sizeof(double ));
     }
 
-    auto start_time = std::chrono::high_resolution_clock::now();
+    clock_t start_time = clock();
 
     createDistanceMatrix(coords, numCoordinates, distanceMatrix);
 
@@ -105,27 +96,22 @@ int main() {
     cheapestInsertion(distanceMatrix, numCoordinates, tour);
 
 
-    auto end_time = std::chrono::high_resolution_clock::now();
-    auto execution_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-    double seconds = static_cast<double>(execution_time.count()) / 1000000.0;
-    std::cout << "Execution time: " << seconds << " seconds" << std::endl;
-
-    end_time = std::chrono::high_resolution_clock::now();
-    execution_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-    std::cout << "Execution time: " << execution_time.count() << " miroseconds" << std::endl;
+    clock_t end_time = clock();
+    double execution_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    printf("Execution time: %.6f seconds\n", execution_time);
 
     // Print the tour
-    std::cout << "Tour order: ";
+    printf("Tour order: ");
     for (int i = 0; i < numCoordinates; i++) {
-        std::cout << tour[i];
+        printf("%d", tour[i]);
         if (i < numCoordinates - 1) {
-            std::cout << " -> ";
+            printf(" -> ");
         }
     }
-    std::cout << " -> " << 0 << std::endl; // Add the starting point at the end to close the loop
+    printf(" -> 0\n"); // Add the starting point at the end to close the loop
 
     // Correct Solution
-    std::cout << "FTour order:0 -> 2 -> 6 -> 1 -> 8 -> 7 -> 3 -> 5 -> 4 -> 0 " << std::endl;
+    printf("FTour order:0 -> 2 -> 6 -> 1 -> 8 -> 7 -> 3 -> 5 -> 4 -> 0\n");
 
     // Free Memory
     for (int i = 0; i < numCoordinates; i++) {

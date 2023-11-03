@@ -1,28 +1,21 @@
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wwritable-strings"
-#pragma clang diagnostic pop
+#include <stdio.h>
+#include <stdlib.h>
 
 int readNumOfCoords(const char *fileName);
 double **readCoords(const char *filename, int numOfCoords);
-
 
 /*Gets the number of the coordinates in the file. Returns as a single integer*/
 int readNumOfCoords(const char *filename){
     FILE *file = fopen(filename, "r");
     int numOfCoords = 0;
 
-    if(file == nullptr){
+    if(file == NULL){
         return -1;
     }
 
     char line[100];
 
-    while(fgets(line, sizeof(line), file) != nullptr){
+    while(fgets(line, sizeof(line), file) != NULL){
         numOfCoords++;
     }
 
@@ -36,22 +29,22 @@ double **readCoords(const char *filename, int numOfCoords){
 
     char line[100];
 
-    if(file == nullptr) {
+    if(file == NULL) {
         printf("NullPtr: Unable to open file: %s", filename);
-        return nullptr;
+        return NULL;
     }
 
     double **coords = (double **)malloc(numOfCoords * sizeof(double *));
 
     for(i = 0; i < numOfCoords; i++){
         coords[i] = (double *) malloc(2 * sizeof(double));
-        if (coords[i] == nullptr){
+        if (coords[i] == NULL){
             perror("Memory Allocation Failed");
         }
     }
 
     int lineNum = 0;
-    while(fgets(line, sizeof(line), file) != nullptr){
+    while(fgets(line, sizeof(line), file) != NULL){
         double x, y;
         if (sscanf(line, "%lf,%lf", &x, &y) == 2){
             coords[lineNum][0] = x;
@@ -68,9 +61,9 @@ void *writeTourToFile(int *tour, int tourLength, char *filename){
     FILE *file = fopen(filename, "w");
     int i;
 
-    if(file == nullptr){
+    if(file == NULL){
         printf("Unable to open file: %s", filename);
-        return nullptr;
+        return NULL;
     }
 
     fprintf(file, "%d \n", tourLength);
@@ -79,5 +72,5 @@ void *writeTourToFile(int *tour, int tourLength, char *filename){
     for(i=0; i < tourLength; i++) {
         fprintf(file, "%d ", tour[i]);
     }
-    return nullptr;
+    return NULL;
 }
