@@ -3,9 +3,7 @@
 #include <math.h>
 #include <omp.h>
 #include <time.h>
-#include <string.h>
-
-#include "coordReader.c"
+#include "coordReader.h"
 
 double calculateDistance(double x1, double y1, double x2, double y2) {
     return sqrt(((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2)));
@@ -41,7 +39,7 @@ void cheapestInsertion(double **distanceMatrix, int numCoordinates, int *tour) {
     for (int i = 1; i < numCoordinates; i++) {
         int bestCity = -1;
         int bestInsertionIndex = -1;
-        double minCost = 1.0 / 0.0; // Equivalent to std::numeric_limits<double>::max() in C++
+        double minCost = 1.0 / 0.0;
 
         #pragma omp parallel for schedule(static)
         for (int vk = 0; vk < numCoordinates; vk++) {
@@ -49,16 +47,13 @@ void cheapestInsertion(double **distanceMatrix, int numCoordinates, int *tour) {
                 double local_minCost = 1.0 / 0.0; // Equivalent to std::numeric_limits<double>::max() in C++
                 int local_bestCity = -1;
                 int local_bestInsertionIndex = -1;
-                double vn1_vk, vn2_vk, vn1_vn2;
-                double insertionCost;
 
                 for (int vn = 0; vn < tourSize; vn++) {
                     int vn_1 = tour[vn];
                     int vn_2 = tour[(vn + 1) % tourSize];  // Circular tour
-                    vn1_vk = distanceMatrix[vn_1][vk];
-                    vn2_vk = distanceMatrix[vn_2][vk];
-                    vn1_vn2 = distanceMatrix[vn_1][vn_2];
-                    insertionCost = vn1_vk + vn2_vk - vn1_vn2;
+
+                    double insertionCost = distanceMatrix[vn_1][vk] + distanceMatrix[vn_2][vk] - distanceMatrix[vn_1][vn_2];
+
 
                     if (insertionCost < local_minCost) {
                         local_minCost = insertionCost;
@@ -68,9 +63,12 @@ void cheapestInsertion(double **distanceMatrix, int numCoordinates, int *tour) {
                 }
 
                 if (local_minCost < minCost) {
-                    minCost = local_minCost;
-                    bestCity = local_bestCity;
-                    bestInsertionIndex = local_bestInsertionIndex;
+                    #pragma omp critical
+                    {
+                        minCost = local_minCost;
+                        bestCity = local_bestCity;
+                        bestInsertionIndex = local_bestInsertionIndex;
+                    }
                 }
             }
         }
@@ -95,8 +93,8 @@ int main() {
     int numThreads = 12;
     omp_set_num_threads(numThreads);
 
-    char const *fileName = "9_coords.coord";
-    //char const *fileName = "4096_coords.coord";
+    // char const *fileName = "9_coords.coord";
+    char const *fileName = "4096_coords.coord";
     int numCoordinates = readNumOfCoords(fileName);
     double **coords = readCoords(fileName, numCoordinates);
 
@@ -126,7 +124,7 @@ int main() {
     printf(" -> 0\n");
 
     // Correct Solution for 9_coords
-    printf("Tour order: 0 -> 2 -> 6 -> 1 -> 8 -> 7 -> 3 -> 5 -> 4 -> 0\n");
+    printf("Tour order: 0 -> 1951 -> 3638 -> 1755 -> 1608 -> 1826 -> 1504 -> 364 -> \n");
 
     // Free Memory
     for (int i = 0; i < numCoordinates; i++) {

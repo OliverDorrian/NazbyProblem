@@ -11,7 +11,7 @@ set(NUM_THREADS ${DEFAULT_NUM_THREADS} CACHE STRING "Number of threads to use")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Pass the number of threads as a compile definition to the source code
-add_executable(openmp_test_clion cMulti.c)
+add_executable(openmp_test_clion ompcInsertion.c)
 target_compile_definitions(openmp_test_clion PRIVATE NUM_THREADS=${NUM_THREADS})
 
 # Add the "coords" files to the source files

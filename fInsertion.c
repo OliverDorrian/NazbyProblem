@@ -1,6 +1,9 @@
-#include <iostream>
-#include <limits>
-#include "coordReader.c"
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+#include "coordReader.h"
 
 double calculateDistance(double x1, double y1, double x2, double y2) {
     // Calculate the Euclidean distance between two points.
@@ -8,11 +11,9 @@ double calculateDistance(double x1, double y1, double x2, double y2) {
 }
 
 void createDistanceMatrix(double **passedCoords, int numCoordinates, double **distanceMatrix) {
-
     for (int i = 0; i < numCoordinates; ++i) {
         for (int j = i + 1; j < numCoordinates; ++j) {
-            double distance = calculateDistance(passedCoords[i][0], passedCoords[i][1], passedCoords[j][0],
-                                                passedCoords[j][1]);
+            double distance = calculateDistance(passedCoords[i][0], passedCoords[i][1], passedCoords[j][0], passedCoords[j][1]);
             distanceMatrix[i][j] = distance;
             distanceMatrix[j][i] = distance;
         }
@@ -21,17 +22,17 @@ void createDistanceMatrix(double **passedCoords, int numCoordinates, double **di
     }
 }
 
-void farthestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
-    bool visited[numCoordinates];
+void farthestInsertion(double **distanceMatrix, int numCoordinates, int *tour) {
+    int visited[numCoordinates];
     for (int i = 0; i < numCoordinates; i++) {
-        visited[i] = false;
+        visited[i] = 0;
         tour[i] = -1;
     }
 
     // Start with the first vertex as the initial tour
     int currentVertex = 0;
     tour[0] = currentVertex;
-    visited[currentVertex] = true;
+    visited[currentVertex] = 1;
 
     for (int step = 1; step < numCoordinates; step++) {
         int farthestVertex = -1;
@@ -51,7 +52,7 @@ void farthestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
 
         // Insert the farthestVertex into the tour at the position that minimizes tour length
         int positionToInsert = -1;
-        double minInsertionCost = std::numeric_limits<double>::max();
+        double minInsertionCost = INFINITY;
 
         for (int vn = 0; vn < step; vn++) {
             int vn1 = tour[(vn + 1) % step];
@@ -67,22 +68,23 @@ void farthestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
             tour[i] = tour[i - 1];
         }
         tour[positionToInsert + 1] = farthestVertex;
-        visited[farthestVertex] = true;
+        visited[farthestVertex] = 1;
     }
-
 }
 
-int main () {
+int main() {
+
     char const *fileName = "4096_coords.coord";
+
     int numCoordinates = readNumOfCoords(fileName);
     double** coords = readCoords(fileName,numCoordinates);
 
-    auto **distanceMatrix = (double **)malloc(numCoordinates * sizeof(double *));
+    double **distanceMatrix = (double **)malloc(numCoordinates * sizeof(double *));
     for (int i = 0; i < numCoordinates; i++) {
-        distanceMatrix[i] = (double *)malloc(numCoordinates * sizeof(double ));
+        distanceMatrix[i] = (double *)malloc(numCoordinates * sizeof(double));
     }
 
-    // generate distance Matrix
+    // Generate distance Matrix
     createDistanceMatrix(coords, numCoordinates, distanceMatrix);
 
     int tour[numCoordinates];
@@ -92,20 +94,20 @@ int main () {
     for (int i = 0; i < numCoordinates - 1; i++) {
         totalTourDistance += distanceMatrix[tour[i]][tour[i + 1]];
     }
-    std::cout << "Total Tour Distance: " << totalTourDistance << std::endl;
+    printf("Total Tour Distance: %f\n", totalTourDistance);
 
     // Print the tour
-    std::cout << "Tour order: ";
+    printf("Tour order: ");
     for (int i = 0; i < numCoordinates; i++) {
-        std::cout << tour[i];
+        printf("%d", tour[i]);
         if (i < numCoordinates - 1) {
-            std::cout << " -> ";
+            printf(" -> ");
         }
     }
-    std::cout << " -> " << 0 << std::endl; // Add the starting point at the end to close the loop
+    printf(" -> 0\n"); // Add the starting point at the end to close the loop
 
     // Correct Solution String
-    std::cout << "FTour order:0 -> 4 -> 2 -> 5 -> 3 -> 7 -> 8 -> 1 -> 6 -> 0" << std::endl;
+    printf("FTour order:0 -> 4 -> 2 -> 5 -> 3 -> 7 -> 8 -> 1 -> 6 -> 0\n");
 
     // Free Memory
     for (int i = 0; i < numCoordinates; i++) {
@@ -114,4 +116,5 @@ int main () {
     }
     free(coords);
     free(distanceMatrix);
+    return 0;
 }

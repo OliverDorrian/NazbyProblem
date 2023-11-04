@@ -3,7 +3,7 @@
 #include <math.h>
 #include <time.h>
 
-#include "coordReader.c"
+#include "coordReader.h"
 
 double calculateDistance(double x1, double y1, double x2, double y2) {
     // Calculate the Euclidean distance between two points.
@@ -95,7 +95,6 @@ int main() {
     int tour[numCoordinates];
     cheapestInsertion(distanceMatrix, numCoordinates, tour);
 
-
     clock_t end_time = clock();
     double execution_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
     printf("Execution time: %.6f seconds\n", execution_time);
@@ -120,8 +119,6 @@ int main() {
     }
     free(coords);
     free(distanceMatrix);
-
-
 
     return 0;
 }
