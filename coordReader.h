@@ -66,11 +66,12 @@ void *writeTourToFile(int *tour, int tourLength, char *filename){
         return NULL;
     }
 
-    fprintf(file, "%d \n", tourLength);
+    fprintf(file, "%d \n", tourLength + 1);
 
     printf("Writing output data\n");
     for(i=0; i < tourLength; i++) {
         fprintf(file, "%d ", tour[i]);
     }
+    fprintf(file, "%d ", 0);
     return NULL;
 }

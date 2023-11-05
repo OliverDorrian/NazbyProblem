@@ -18,9 +18,13 @@ void createDistanceMatrix(double **passedCoords, int numCoordinates, double **di
             distanceMatrix[j][i] = distance;
         }
         // Set diagonal elements to 0
-        distanceMatrix[i][i] = 0;
+        distanceMatrix[i][i] = 0.000000;
     }
 }
+
+#include <float.h>
+#include <stdbool.h>
+
 
 void farthestInsertion(double **distanceMatrix, int numCoordinates, int *tour) {
     int visited[numCoordinates];
@@ -70,14 +74,29 @@ void farthestInsertion(double **distanceMatrix, int numCoordinates, int *tour) {
         tour[positionToInsert + 1] = farthestVertex;
         visited[farthestVertex] = 1;
     }
+
+    // Reverse the order of elements in the tour array to get the correct tour
+    for (int i = 0; i < numCoordinates / 2; i++) {
+        int temp = tour[i];
+        tour[i] = tour[numCoordinates - i - 1];
+        tour[numCoordinates - i - 1] = temp;
+    }
 }
 
-int main() {
 
-    char const *fileName = "4096_coords.coord";
+int main(int argc, char *argv[]) {
+
+    argv[1] = "9_coords.coord";
+    char const *fileName = argv[1];
+
+    argv[2] = "fiOut.dat";
+    //char const *fileName = "4096_coords.coord";
+    //char const *fileName = "9_coords.coord";
 
     int numCoordinates = readNumOfCoords(fileName);
     double** coords = readCoords(fileName,numCoordinates);
+
+    clock_t start_time = clock();
 
     double **distanceMatrix = (double **)malloc(numCoordinates * sizeof(double *));
     for (int i = 0; i < numCoordinates; i++) {
@@ -90,24 +109,11 @@ int main() {
     int tour[numCoordinates];
     farthestInsertion(distanceMatrix, numCoordinates, tour);
 
-    double totalTourDistance = 0.0;
-    for (int i = 0; i < numCoordinates - 1; i++) {
-        totalTourDistance += distanceMatrix[tour[i]][tour[i + 1]];
-    }
-    printf("Total Tour Distance: %f\n", totalTourDistance);
+    clock_t end_time = clock();
+    double execution_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    printf("Execution time: %.6f seconds\n", execution_time);
 
-    // Print the tour
-    printf("Tour order: ");
-    for (int i = 0; i < numCoordinates; i++) {
-        printf("%d", tour[i]);
-        if (i < numCoordinates - 1) {
-            printf(" -> ");
-        }
-    }
-    printf(" -> 0\n"); // Add the starting point at the end to close the loop
-
-    // Correct Solution String
-    printf("FTour order:0 -> 4 -> 2 -> 5 -> 3 -> 7 -> 8 -> 1 -> 6 -> 0\n");
+    writeTourToFile(tour, numCoordinates, argv[2]);
 
     // Free Memory
     for (int i = 0; i < numCoordinates; i++) {
@@ -116,5 +122,6 @@ int main() {
     }
     free(coords);
     free(distanceMatrix);
+
     return 0;
 }

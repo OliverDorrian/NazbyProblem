@@ -75,12 +75,19 @@ void cheapestInsertion(double** distanceMatrix, int numCoordinates, int* tour) {
     }
 }
 
-int main() {
-    char const *fileName = "9_coords.coord";
+int main(int argc, char *argv[]) {
+
+    argv[1] = "9_coords.coord";
+    char const *fileName = argv[1];
+
+    argv[2] = "ciOut.dat";
     //char const *fileName = "4096_coords.coord";
+    //char const *fileName = "9_coords.coord";
 
     int numCoordinates = readNumOfCoords(fileName);
     double** coords = readCoords(fileName,numCoordinates);
+
+    clock_t start_time = clock();
 
     // Allocate memory for the distance matrix
     double **distanceMatrix = (double **)malloc(numCoordinates * sizeof(double *));
@@ -88,8 +95,7 @@ int main() {
         distanceMatrix[i] = (double *)malloc(numCoordinates * sizeof(double ));
     }
 
-    clock_t start_time = clock();
-
+    // Generate distance Matrix
     createDistanceMatrix(coords, numCoordinates, distanceMatrix);
 
     int tour[numCoordinates];
@@ -99,24 +105,14 @@ int main() {
     double execution_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
     printf("Execution time: %.6f seconds\n", execution_time);
 
-    // Print the tour
-    printf("Tour order: ");
-    for (int i = 0; i < numCoordinates; i++) {
-        printf("%d", tour[i]);
-        if (i < numCoordinates - 1) {
-            printf(" -> ");
-        }
-    }
-    printf(" -> 0\n"); // Add the starting point at the end to close the loop
-
-    // Correct Solution
-    printf("FTour order:0 -> 2 -> 6 -> 1 -> 8 -> 7 -> 3 -> 5 -> 4 -> 0\n");
+    writeTourToFile(tour, numCoordinates, argv[2]);
 
     // Free Memory
     for (int i = 0; i < numCoordinates; i++) {
         free(coords[i]);
         free(distanceMatrix[i]);
     }
+
     free(coords);
     free(distanceMatrix);
 

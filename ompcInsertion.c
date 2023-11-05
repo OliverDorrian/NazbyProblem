@@ -54,7 +54,6 @@ void cheapestInsertion(double **distanceMatrix, int numCoordinates, int *tour) {
 
                     double insertionCost = distanceMatrix[vn_1][vk] + distanceMatrix[vn_2][vk] - distanceMatrix[vn_1][vn_2];
 
-
                     if (insertionCost < local_minCost) {
                         local_minCost = insertionCost;
                         local_bestCity = vk;
@@ -86,17 +85,21 @@ void cheapestInsertion(double **distanceMatrix, int numCoordinates, int *tour) {
     }
 }
 
-int main() {
-    struct timespec start_time, end_time;
-    clock_gettime(CLOCK_MONOTONIC, &start_time);
-
+int main(int argc, char *argv[]) {
     int numThreads = 12;
     omp_set_num_threads(numThreads);
 
-    // char const *fileName = "9_coords.coord";
-    char const *fileName = "4096_coords.coord";
+    argv[1] = "9_coords.coord";
+    char const *fileName = argv[1];
+
+    argv[2] = "compOut.dat";
+    //char const *fileName = "4096_coords.coord";
+    //char const *fileName = "9_coords.coord";
+
     int numCoordinates = readNumOfCoords(fileName);
     double **coords = readCoords(fileName, numCoordinates);
+
+    clock_t start_time = clock();
 
     // Allocate memory for the distance matrix
     double **distanceMatrix = (double **)malloc(numCoordinates * sizeof(double *));
@@ -104,27 +107,17 @@ int main() {
         distanceMatrix[i] = (double *)malloc(numCoordinates * sizeof(double));
     }
 
+    // Generate distance Matrix
     createDistanceMatrix(coords, numCoordinates, distanceMatrix);
 
     int tour[numCoordinates];
     cheapestInsertion(distanceMatrix, numCoordinates, tour);
 
-    clock_gettime(CLOCK_MONOTONIC, &end_time);
-    double execution_time = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
-    printf("Execution time: %lf seconds\n", execution_time);
+    clock_t end_time = clock();
+    double execution_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    printf("Execution time: %.6f seconds\n", execution_time);
 
-    // Print the tour
-    printf("Tour order: ");
-    for (int i = 0; i < numCoordinates; i++) {
-        printf("%d", tour[i]);
-        if (i < numCoordinates - 1) {
-            printf(" -> ");
-        }
-    }
-    printf(" -> 0\n");
-
-    // Correct Solution for 9_coords
-    printf("Tour order: 0 -> 1951 -> 3638 -> 1755 -> 1608 -> 1826 -> 1504 -> 364 -> \n");
+    writeTourToFile(tour, numCoordinates, argv[2]);
 
     // Free Memory
     for (int i = 0; i < numCoordinates; i++) {
