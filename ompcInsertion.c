@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <omp.h>
-#include <time.h>
 #include "coordReader.h"
 
 double calculateDistance(double x1, double y1, double x2, double y2) {
@@ -61,14 +60,15 @@ void cheapestInsertion(double **distanceMatrix, int numCoordinates, int *tour) {
                     }
                 }
 
-                if (local_minCost < minCost) {
-                    #pragma omp critical
-                    {
-                        minCost = local_minCost;
-                        bestCity = local_bestCity;
-                        bestInsertionIndex = local_bestInsertionIndex;
+                #pragma omp critical
+                {
+                    if (local_minCost < minCost) {
+                       minCost = local_minCost;
+                       bestCity = local_bestCity;
+                       bestInsertionIndex = local_bestInsertionIndex;
                     }
                 }
+
             }
         }
 
@@ -86,10 +86,13 @@ void cheapestInsertion(double **distanceMatrix, int numCoordinates, int *tour) {
 }
 
 int main(int argc, char *argv[]) {
+
+    double start, end, time_taken;
+
     int numThreads = 12;
     omp_set_num_threads(numThreads);
 
-    argv[1] = "9_coords.coord";
+    argv[1] = "4096_coords.coord";
     char const *fileName = argv[1];
 
     argv[2] = "compOut.dat";
@@ -99,7 +102,7 @@ int main(int argc, char *argv[]) {
     int numCoordinates = readNumOfCoords(fileName);
     double **coords = readCoords(fileName, numCoordinates);
 
-    clock_t start_time = clock();
+    start = omp_get_wtime();
 
     // Allocate memory for the distance matrix
     double **distanceMatrix = (double **)malloc(numCoordinates * sizeof(double *));
@@ -113,9 +116,9 @@ int main(int argc, char *argv[]) {
     int tour[numCoordinates];
     cheapestInsertion(distanceMatrix, numCoordinates, tour);
 
-    clock_t end_time = clock();
-    double execution_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
-    printf("Execution time: %.6f seconds\n", execution_time);
+    end = omp_get_wtime();
+    time_taken = ((double) (end - start));
+    printf("Execution time: %.6f seconds\n", time_taken);
 
     writeTourToFile(tour, numCoordinates, argv[2]);
 
