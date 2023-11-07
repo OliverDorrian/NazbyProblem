@@ -69,21 +69,16 @@ void farthestInsertion(double **distanceMatrix, int numCoordinates, int *tour) {
         int positionToInsert = -1;
         double minInsertionCost = DBL_MAX;
 
-        #pragma omp parallel for
         for (int vn = 0; vn < step; vn++) {
             int vn1 = tour[(vn + 1) % step];
             double insertionCost = distanceMatrix[tour[vn]][farthestVertex] + distanceMatrix[farthestVertex][vn1] - distanceMatrix[tour[vn]][vn1];
-            #pragma omp critical
-            {
-                if (insertionCost < minInsertionCost) {
-                    minInsertionCost = insertionCost;
-                    positionToInsert = vn;
-                }
+            if (insertionCost < minInsertionCost) {
+                minInsertionCost = insertionCost;
+                positionToInsert = vn;
             }
         }
 
         // Shift elements to make space for the new vertex
-
         for (int i = step; i > positionToInsert; i--) {
             tour[i] = tour[i - 1];
         }
@@ -92,12 +87,12 @@ void farthestInsertion(double **distanceMatrix, int numCoordinates, int *tour) {
     }
 }
 
-
 int main(int argc, char *argv[]) {
     int numThreads = 12;
     omp_set_num_threads(numThreads);
-    argv[1] = "9_coords.coord";
-    //argv[1] = "4096_coords.coord";
+
+    //argv[1] = "9_coords.coord";
+    argv[1] = "4096_coords.coord";
     char const *fileName = argv[1];
 
     argv[2] = "icompOut.dat";
